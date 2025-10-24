@@ -5,83 +5,51 @@ import { usePathname } from 'next/navigation';
 import { ConnectButton } from '@/components/shared/ConnectButton';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
-import { Menu, X, BarChart3, Coins, Droplets, Home, Info, BookOpen } from 'lucide-react';
+import { useState } from 'react';
+import { Menu, X, BarChart3, Coins, BookOpen } from 'lucide-react';
 import Image from 'next/image';
-import { useAccount } from 'wagmi';
 import { NetworkWarning } from '@/components/shared/NetworkWarning';
+import { ClientOnly } from '@/components/shared/ClientOnly';
 
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const { isConnected } = useAccount();
 
-  // Fix hydration mismatch by only using wallet state on client
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  // Navigation items
+  const navItems = [
+    {
+      name: 'Dashboard',
+      href: '/dashboard',
+      icon: BarChart3,
+      description: 'Your trading dashboard',
+      requiresWallet: false,
+    },
+    {
+      name: 'Trade',
+      href: '/margin',
+      icon: BarChart3,
+      description: 'Margin trading with leverage',
+      requiresWallet: true,
+    },
+    {
+      name: 'Earn',
+      href: '/pools',
+      icon: Coins,
+      description: 'Supply liquidity and earn yield',
+      requiresWallet: true,
+    },
+    {
+      name: 'Docs',
+      href: 'https://docs.librefi.app',
+      icon: BookOpen,
+      description: 'Learn how to use LibreFi',
+      external: true,
+      requiresWallet: false,
+    },
+  ];
 
-  // Navigation items - different sets for connected vs non-connected users
-  // Default to non-connected state during SSR to prevent hydration mismatch
-  const navItems =
-    isClient && isConnected
-      ? [
-          {
-            name: 'Dashboard',
-            href: '/dashboard',
-            icon: BarChart3,
-            description: 'Your trading dashboard',
-            requiresWallet: false,
-          },
-          {
-            name: 'Trade',
-            href: '/margin',
-            icon: BarChart3,
-            description: 'Margin trading with leverage',
-            requiresWallet: true,
-          },
-          {
-            name: 'Earn',
-            href: '/pools',
-            icon: Coins,
-            description: 'Supply liquidity and earn yield',
-            requiresWallet: true,
-          },
-          {
-            name: 'Faucet',
-            href: '/faucet',
-            icon: Droplets,
-            description: 'Get testnet tokens',
-            requiresWallet: true,
-          },
-        ]
-      : [
-          {
-            name: 'Home',
-            href: '/',
-            icon: Home,
-            description: 'Welcome to LibreFi',
-            requiresWallet: false,
-          },
-          {
-            name: 'About',
-            href: '#how-it-works',
-            icon: Info,
-            description: 'Learn how LibreFi works',
-            requiresWallet: false,
-          },
-          {
-            name: 'Docs',
-            href: 'https://docs.librefi.app',
-            icon: BookOpen,
-            description: 'Platform documentation',
-            requiresWallet: false,
-            external: true,
-          },
-        ];
-
-  const visibleNavItems = navItems.filter(item => !item.requiresWallet || (isClient && isConnected));
+  // Filter navigation items - show all items, wallet protection happens at page level
+  const visibleNavItems = navItems;
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href);
 
@@ -91,7 +59,7 @@ export function Header() {
         <div className='container mx-auto px-4 lg:px-8'>
           <div className='flex h-16 items-center justify-between'>
             {/* Enhanced Logo */}
-            <Link href={isClient && isConnected ? '/dashboard' : '/'} className='flex items-center gap-3 group'>
+            <Link href='/' className='flex items-center gap-3 group'>
               <div className='relative h-9 w-9'>
                 <Image
                   src='/librefi-logo.png'
@@ -148,7 +116,9 @@ export function Header() {
             {/* Desktop Actions */}
             <div className='hidden md:flex items-center gap-3'>
               <ThemeToggle />
-              <ConnectButton />
+              <ClientOnly>
+                <ConnectButton />
+              </ClientOnly>
             </div>
 
             {/* Mobile Menu Button */}
@@ -214,14 +184,18 @@ export function Header() {
                 {/* Mobile Actions */}
                 <div className='flex items-center justify-between pt-4 mt-4 border-t'>
                   <ThemeToggle />
-                  <ConnectButton />
+                  <ClientOnly>
+                    <ConnectButton />
+                  </ClientOnly>
                 </div>
               </div>
             </div>
           )}
         </div>
       </nav>
-      <NetworkWarning />
+      <ClientOnly>
+        <NetworkWarning />
+      </ClientOnly>
     </>
   );
 }

@@ -18,8 +18,19 @@ const nextConfig: NextConfig = {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         '@react-native-async-storage/async-storage': false,
+        fs: false,
+        net: false,
+        tls: false,
       };
     }
+
+    // Ignore specific modules that cause issues during build
+    config.ignoreWarnings = [
+      { module: /node_modules\/@metamask\/sdk/ },
+      { module: /node_modules\/@walletconnect/ },
+      { message: /Can't resolve '@react-native-async-storage\/async-storage'/ },
+    ];
+
     return config;
   },
   eslint: {

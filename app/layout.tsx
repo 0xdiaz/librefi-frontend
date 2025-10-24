@@ -1,3 +1,4 @@
+import '@/lib/polyfills'; // Must be first import for SSR compatibility
 import { Inter } from 'next/font/google';
 import '@rainbow-me/rainbowkit/styles.css';
 import Script from 'next/script';
