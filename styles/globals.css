@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 200 12% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 200 12% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 12% 12%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 195 30% 95%;
+    --secondary-foreground: 200 12% 12%;
+    --muted: 195 20% 96%;
+    --muted-foreground: 200 12% 45%;
+    --accent: 195 100% 50%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 195 20% 89%;
+    --input: 195 20% 89%;
+    --ring: 195 100% 50%;
+    --chart-1: 195 100% 50%;
+    --chart-2: 210 70% 55%;
+    --chart-3: 225 65% 45%;
+    --chart-4: 180 70% 60%;
+    --chart-5: 240 85% 65%;
+    --radius: 0.5rem;
+
+    /* Neon effect variables */
+    --neon-primary: 195 100% 51%;
+    --neon-secondary: 210 100% 60%;
+    --neon-accent: 180 100% 65%;
+  }
+  .dark {
+    --background: 200 25% 4%;
+    --foreground: 195 30% 95%;
+    --card: 200 20% 6%;
+    --card-foreground: 195 30% 95%;
+    --popover: 200 25% 4%;
+    --popover-foreground: 195 30% 95%;
+    --primary: 195 100% 55%;
+    --primary-foreground: 200 25% 4%;
+    --secondary: 200 15% 12%;
+    --secondary-foreground: 195 30% 95%;
+    --muted: 200 15% 12%;
+    --muted-foreground: 195 20% 65%;
+    --accent: 195 100% 55%;
+    --accent-foreground: 200 25% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 200 15% 15%;
+    --input: 200 15% 15%;
+    --ring: 195 100% 55%;
+    --chart-1: 195 100% 55%;
+    --chart-2: 210 70% 55%;
+    --chart-3: 225 65% 45%;
+    --chart-4: 180 70% 60%;
+    --chart-5: 240 85% 65%;
+
+    /* Enhanced neon effects for dark mode */
+    --neon-primary: 195 100% 60%;
+    --neon-secondary: 210 100% 70%;
+    --neon-accent: 180 100% 75%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Neon glow effects */
+  .neon-glow {
+    box-shadow:
+      0 0 2px hsl(var(--neon-primary)),
+      0 0 4px hsl(var(--neon-primary)),
+      0 0 8px hsl(var(--neon-primary));
+  }
+
+  .neon-glow-sm {
+    box-shadow:
+      0 0 1px hsl(var(--neon-primary)),
+      0 0 2px hsl(var(--neon-primary)),
+      0 0 4px hsl(var(--neon-primary));
+  }
+
+  .neon-glow-lg {
+    box-shadow:
+      0 0 4px hsl(var(--neon-primary)),
+      0 0 8px hsl(var(--neon-primary)),
+      0 0 12px hsl(var(--neon-primary)),
+      0 0 16px hsl(var(--neon-primary));
+  }
+
+  .neon-text {
+    text-shadow:
+      0 0 1px hsl(var(--neon-primary)),
+      0 0 2px hsl(var(--neon-primary)),
+      0 0 4px hsl(var(--neon-primary));
+  }
+
+  .neon-border {
+    border: 1px solid hsl(var(--neon-primary));
+    box-shadow:
+      inset 0 0 2px hsl(var(--neon-primary)),
+      0 0 2px hsl(var(--neon-primary));
+  }
+
+  .neon-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--neon-primary)) 0%,
+      hsl(var(--neon-secondary)) 50%,
+      hsl(var(--neon-accent)) 100%
+    );
+  }
+
+  .neon-hover:hover {
+    transition: all 0.3s ease;
+    box-shadow:
+      0 0 3px hsl(var(--neon-primary)),
+      0 0 6px hsl(var(--neon-primary)),
+      0 0 12px hsl(var(--neon-primary));
+    transform: translateY(-2px);
+  }
+
+  /* Animated neon pulse */
+  .neon-pulse {
+    animation: neon-pulse 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes neon-pulse {
+    from {
+      box-shadow:
+        0 0 2px hsl(var(--neon-primary)),
+        0 0 4px hsl(var(--neon-primary)),
+        0 0 6px hsl(var(--neon-primary));
+    }
+    to {
+      box-shadow:
+        0 0 4px hsl(var(--neon-primary)),
+        0 0 8px hsl(var(--neon-primary)),
+        0 0 12px hsl(var(--neon-primary)),
+        0 0 16px hsl(var(--neon-primary));
+    }
+  }
+}
