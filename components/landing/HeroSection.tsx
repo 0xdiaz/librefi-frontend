@@ -3,12 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/shared/Button';
 import { ArrowRight, Shield, Zap, TrendingUp } from 'lucide-react';
-import { useAccount } from 'wagmi';
+import { useSafeAccount } from '@/hooks/useSafeWagmi';
 import { useState, useEffect } from 'react';
 
 export function HeroSection() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected } = useSafeAccount();
   const [isClient, setIsClient] = useState(false);
 
   // Fix hydration mismatch
@@ -24,6 +24,10 @@ export function HeroSection() {
     }
   };
 
+  return <HeroSectionUI isConnected={isClient && isConnected} handleGetStarted={handleGetStarted} />;
+}
+
+function HeroSectionUI({ isConnected, handleGetStarted }: { isConnected: boolean; handleGetStarted: () => void }) {
   return (
     <section className='relative min-h-screen flex items-center justify-center'>
       <div className='container mx-auto px-4 text-center'>
@@ -65,7 +69,7 @@ export function HeroSection() {
               onClick={handleGetStarted}
               className='gap-2 neon-hover neon-glow text-xl px-12 py-6 h-auto'
             >
-              {isClient && isConnected ? 'Go to Dashboard' : 'Start Trading Now'}
+              {isConnected ? 'Go to Dashboard' : 'Start Trading Now'}
               <ArrowRight className='size-6' />
             </Button>
 

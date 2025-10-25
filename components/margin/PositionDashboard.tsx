@@ -6,6 +6,7 @@ import { usePositionAddresses } from '@/hooks/usePositionAddresses';
 import { useLendingPoolFactory } from '@/hooks/useLendingPoolFactory';
 import { Button } from '@/components/shared/Button';
 import { MarginCard } from '@/components/margin/MarginCard';
+import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { Plus, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
@@ -117,34 +118,7 @@ export function PositionDashboard({ poolAddress, onCreatePosition }: PositionDas
   );
 
   // Loading skeleton for positions
-  const LoadingSkeletons = () => (
-    <div className='space-y-4'>
-      {[...Array(3)].map((_, index) => (
-        <div key={`position-skeleton-${index}`} className='border rounded-lg p-4 bg-card animate-pulse'>
-          <div className='h-6 w-1/3 bg-muted rounded mb-4'></div>
-          <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mb-4'>
-            <div className='space-y-2'>
-              <div className='h-4 w-16 bg-muted rounded'></div>
-              <div className='h-5 w-20 bg-muted rounded'></div>
-            </div>
-            <div className='space-y-2'>
-              <div className='h-4 w-16 bg-muted rounded'></div>
-              <div className='h-5 w-20 bg-muted rounded'></div>
-            </div>
-            <div className='space-y-2'>
-              <div className='h-4 w-16 bg-muted rounded'></div>
-              <div className='h-5 w-20 bg-muted rounded'></div>
-            </div>
-            <div className='space-y-2'>
-              <div className='h-4 w-16 bg-muted rounded'></div>
-              <div className='h-5 w-20 bg-muted rounded'></div>
-            </div>
-          </div>
-          <div className='h-9 w-full bg-muted rounded'></div>
-        </div>
-      ))}
-    </div>
-  );
+  const LoadingSkeletons = () => <LoadingSkeleton variant='list' count={3} />;
 
   return (
     <div className='space-y-4'>

@@ -6,8 +6,9 @@ import { useAccount } from 'wagmi';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { SimpleHowItWorks } from '@/components/landing/SimpleHowItWorks';
 import { DocsSection } from '@/components/landing/DocsSection';
+import { ClientOnly } from '@/components/shared/ClientOnly';
 
-export default function LandingPage() {
+function LandingPageContent() {
   const router = useRouter();
   const { isConnected } = useAccount();
 
@@ -18,12 +19,27 @@ export default function LandingPage() {
     }
   }, [isConnected, router]);
 
-  // Show simple landing page for non-connected users
   return (
     <main className='flex-1'>
       <HeroSection />
       <SimpleHowItWorks />
       <DocsSection />
     </main>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <ClientOnly
+      fallback={
+        <main className='flex-1'>
+          <HeroSection />
+          <SimpleHowItWorks />
+          <DocsSection />
+        </main>
+      }
+    >
+      <LandingPageContent />
+    </ClientOnly>
   );
 }

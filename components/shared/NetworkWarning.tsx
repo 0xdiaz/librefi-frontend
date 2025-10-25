@@ -1,16 +1,22 @@
 import { AlertTriangle, Wifi } from 'lucide-react';
 import { Button } from '@/components/shared/Button';
 import { useNetworkRecovery } from '@/hooks/useNetworkRecovery';
-import { useChains } from 'wagmi';
+import { useSafeChains } from '@/hooks/useSafeWagmi';
+import { useState, useEffect } from 'react';
 
 export function NetworkWarning() {
+  const [isClient, setIsClient] = useState(false);
   const { isWrongNetwork, isUnsupportedNetwork, isRecovering, recoverNetwork, currentChainId, targetChain } =
     useNetworkRecovery();
+  const chains = useSafeChains();
 
-  const chains = useChains();
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient || (!isWrongNetwork && !isUnsupportedNetwork)) return null;
+
   const currentChain = chains.find(chain => chain.id === currentChainId);
-
-  if (!isWrongNetwork && !isUnsupportedNetwork) return null;
 
   return (
     <div className='bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6'>

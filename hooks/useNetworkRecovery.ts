@@ -1,13 +1,22 @@
 import { useCallback, useState } from 'react';
-import { useAccount, useChainId, useSwitchChain } from 'wagmi';
+import { useSwitchChain } from 'wagmi';
+import { useSafeAccount, useSafeChainId } from '@/hooks/useSafeWagmi';
 import { baseSepolia } from '@/lib/chains';
 import { toast } from 'sonner';
 
 export function useNetworkRecovery() {
   const [isRecovering, setIsRecovering] = useState(false);
-  const chainId = useChainId();
-  const { switchChain } = useSwitchChain();
-  const { isConnected } = useAccount();
+  const chainId = useSafeChainId();
+  const { isConnected } = useSafeAccount();
+
+  // Use try-catch for useSwitchChain since it might not be available
+  let switchChain;
+  try {
+    const switchChainHook = useSwitchChain();
+    switchChain = switchChainHook.switchChain;
+  } catch {
+    switchChain = undefined;
+  }
 
   const isWrongNetwork = isConnected && chainId !== baseSepolia.id;
   const isUnsupportedNetwork = isConnected && !chainId;
