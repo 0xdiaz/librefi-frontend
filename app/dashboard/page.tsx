@@ -4,12 +4,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/shared/Button';
 import { Dashboard } from '@/components/dashboard/Dashboard';
 import { ArrowRight } from 'lucide-react';
-import { useAccount } from 'wagmi';
+import { useSafeAccount } from '@/hooks/useSafeWagmi';
 import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected } = useSafeAccount();
   const [isMounted, setIsMounted] = useState(false);
 
   // Prevent hydration mismatch by waiting for client-side mount

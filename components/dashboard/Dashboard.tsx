@@ -8,13 +8,13 @@ import { useLendingPoolFactory } from '@/hooks/useLendingPoolFactory';
 import { usePositionFactory } from '@/hooks/usePositionFactory';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
-import { useAccount } from 'wagmi';
+import { useSafeAccount } from '@/hooks/useSafeWagmi';
 
 export function Dashboard() {
   const router = useRouter();
   const { pools, isLoading: isLoadingPools, poolAddresses } = useLendingPoolFactory();
   const { userPositions, isLoading: isLoadingPositions } = usePositionFactory();
-  const { isConnected } = useAccount();
+  const { isConnected } = useSafeAccount();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

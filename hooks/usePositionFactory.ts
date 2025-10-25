@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
-import { useReadContract, useReadContracts, useWriteContract, useAccount, useChainId } from 'wagmi';
+import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useReadContract, useReadContracts, useWriteContract } from 'wagmi';
+import { useSafeAccount, useSafeChainId } from '@/hooks/useSafeWagmi';
 import { Address } from 'viem';
 import { CONTRACTS } from '@/config/contracts';
 import { toast } from 'sonner';
@@ -36,11 +37,15 @@ interface PositionData {
 }
 
 export function usePositionFactory() {
-  const chainId = useChainId();
-  const { address: userAddress, isConnected } = useAccount();
+  const chainId = useSafeChainId();
+  const { address: userAddress, isConnected } = useSafeAccount();
   const [userPositions, setUserPositions] = useState<PositionData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+
+  // Cache duration in milliseconds (30 seconds)
+  const CACHE_DURATION = 30000;
 
   console.log('[usePositionFactory] User Address:', userAddress, ', isConnected:', isConnected);
 
@@ -71,35 +76,56 @@ export function usePositionFactory() {
     })),
   });
 
-  // Helper function to fetch positions for a single pool
-  const fetchPoolPositions = async (poolAddress: Address, userAddress: Address): Promise<PositionData[]> => {
-    try {
-      const result = await fetch(
-        `/api/positions?chainId=${chainId}&poolAddress=${poolAddress}&userAddress=${userAddress}`,
-      );
+  // Memoize valid pools to prevent unnecessary re-processing
+  const validPools = useMemo(() => {
+    if (!poolAddresses) return [];
 
-      // This is a mock response - in a real app you would use your backend/subgraph
-      // or directly query the contract
-      if (!result.ok) {
-        // For demo purposes, simulate position data
-        return Array.from({ length: Math.floor(Math.random() * 3) }, (_, i) => ({
-          id: `${poolAddress}-${i}`,
-          address: `0x${i}${'0'.repeat(39)}` as Address,
-        }));
+    return poolAddresses
+      .filter(result => result.status === 'success')
+      .map(result => result.result as Address)
+      .filter(addr => !!addr && addr !== '0x0000000000000000000000000000000000000000');
+  }, [poolAddresses]);
+
+  // Helper function to fetch positions for a single pool - memoized to prevent useEffect re-runs
+  const fetchPoolPositions = useCallback(
+    async (poolAddress: Address, userAddress: Address): Promise<PositionData[]> => {
+      try {
+        const result = await fetch(
+          `/api/positions?chainId=${chainId}&poolAddress=${poolAddress}&userAddress=${userAddress}`,
+        );
+
+        // This is a mock response - in a real app you would use your backend/subgraph
+        // or directly query the contract
+        if (!result.ok) {
+          // For demo purposes, simulate position data
+          return Array.from({ length: Math.floor(Math.random() * 3) }, (_, i) => ({
+            id: `${poolAddress}-${i}`,
+            address: `0x${i}${'0'.repeat(39)}` as Address,
+          }));
+        }
+
+        return await result.json();
+      } catch (err) {
+        console.error(`[fetchPoolPositions] Error fetching positions for pool ${poolAddress}:`, err);
+        return [];
       }
-
-      return await result.json();
-    } catch (err) {
-      console.error(`[fetchPoolPositions] Error fetching positions for pool ${poolAddress}:`, err);
-      return [];
-    }
-  };
+    },
+    [chainId],
+  );
 
   // Get positions for all pools
   useEffect(() => {
     const getAllPositions = async () => {
-      if (!userAddress || !isConnected || !poolAddresses) {
+      if (!userAddress || !isConnected || validPools.length === 0) {
         setUserPositions([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if we have cached data that's still fresh
+      const now = Date.now();
+      if (lastFetchTime && now - lastFetchTime < CACHE_DURATION && userPositions.length > 0) {
+        console.log('[usePositionFactory] Using cached data');
         setIsLoading(false);
         return;
       }
@@ -108,12 +134,6 @@ export function usePositionFactory() {
       setError(null);
 
       try {
-        // Filter valid pool addresses (non-zero)
-        const validPools = poolAddresses
-          .filter(result => result.status === 'success')
-          .map(result => result.result as Address)
-          .filter(addr => !!addr && addr !== '0x0000000000000000000000000000000000000000');
-
         // Get positions for each pool
         const allPositionsPromises = validPools.map(poolAddress =>
           fetchPoolPositions(poolAddress, userAddress as Address),
@@ -148,6 +168,9 @@ export function usePositionFactory() {
         } else {
           setUserPositions([]);
         }
+
+        // Update the last fetch time
+        setLastFetchTime(Date.now());
       } catch (err) {
         console.error('[getAllPositions] Error fetching positions:', err);
         setError(err instanceof Error ? err : new Error('Failed to fetch positions'));
@@ -157,14 +180,14 @@ export function usePositionFactory() {
     };
 
     getAllPositions();
-  }, [userAddress, isConnected, poolAddresses, fetchPoolPositions]);
+  }, [userAddress, isConnected, validPools, fetchPoolPositions, CACHE_DURATION]);
 
-  // Helper function to fetch additional data for positions
-  const fetchPositionsData = async (positions: PositionData[]): Promise<PositionData[]> => {
+  // Helper function to fetch additional data for positions - memoized
+  const fetchPositionsData = useCallback(async (positions: PositionData[]): Promise<PositionData[]> => {
     // In a real app, you would batch fetch position data from contracts
     // For now, we'll just return the positions as they are
     return positions;
-  };
+  }, []);
 
   const { writeContract, isPending: isCreatingPosition } = useWriteContract();
 
