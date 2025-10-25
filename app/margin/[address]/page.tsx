@@ -1,16 +1,16 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { Address } from 'viem';
+import { PositionDashboard } from '@/components/margin/PositionDashboard';
 import { Button } from '@/components/shared/Button';
-import { ArrowLeft, Info, AlertTriangle, Plus, Scale, Activity, TrendingUp } from 'lucide-react';
 import { useLendingPool } from '@/hooks/useLendingPool';
 import { useLendingPoolFactory } from '@/hooks/useLendingPoolFactory';
-import { formatTokenAmount } from '@/lib/utils/format';
 import { formatAddress } from '@/lib/utils';
+import { formatTokenAmount } from '@/lib/utils/format';
+import { Activity, AlertTriangle, ArrowLeft, Info, Plus, Scale, TrendingUp } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Address } from 'viem';
 import { useAccount } from 'wagmi';
-import { PositionDashboard } from '@/components/margin/PositionDashboard';
 
 // Helper function to format percentage
 const formatPercentage = (value: number) => {
@@ -188,12 +188,6 @@ export default function MarginDetailsPage() {
         <div className='bg-card rounded-lg border'>
           <div className='p-6 flex justify-between items-center border-b'>
             <h2 className='text-xl font-semibold'>My Positions</h2>
-            {isClient && isConnected && (
-              <Button onClick={handleOpenPosition} className='gap-2'>
-                <Plus className='size-4' />
-                Open Position
-              </Button>
-            )}
           </div>
 
           <div className='p-6'>

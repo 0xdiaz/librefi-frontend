@@ -1,21 +1,19 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { Address, parseUnits, formatUnits, zeroAddress, maxUint256 } from 'viem';
-import { useAccount } from 'wagmi';
 import { Button } from '@/components/shared/Button';
-import { ArrowLeft, Info } from 'lucide-react';
+import { CONTRACTS } from '@/config/contracts';
 import { useLendingPool } from '@/hooks/useLendingPool';
 import { useLendingPoolFactory } from '@/hooks/useLendingPoolFactory';
-import { formatTokenAmount } from '@/lib/utils/format';
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { erc20Abi } from 'viem';
-import { toast } from 'sonner';
-import { LiquidationCalculator } from '@/lib/health';
 import { convertPrice } from '@/lib/convertPrice';
-import { CONTRACTS } from '@/config/contracts';
+import { LiquidationCalculator } from '@/lib/health';
+import { formatTokenAmount } from '@/lib/utils/format';
 import { PoolDetails } from '@/types';
+import { ArrowLeft, Info } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Address, erc20Abi, formatUnits, maxUint256, parseUnits, zeroAddress } from 'viem';
+import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
 export default function MarginTradePage() {
   const router = useRouter();
@@ -471,7 +469,8 @@ export default function MarginTradePage() {
                 return needsApproval ? 'Processing...' : 'Processing...';
               }
               if (needsApproval) {
-                return `Approve ${pool.collateralTokenSymbol} & Create Position`;
+                // return `Approve ${pool.collateralTokenSymbol} & Create Position`;
+                return `Create Position`;
               }
               return 'Create Position';
             })()}
